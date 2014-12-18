@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{B5E222DA-32B3-4B32-A131-58BC1C3B2DED}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Humance.Push</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GCMBroadcastReceiver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IMessageHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGearAndroidConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGearClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AeroGear\IAeroGearConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGeariOSConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGearWindowsConfig.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)AeroGear\" />
+  </ItemGroup>
+</Project>
