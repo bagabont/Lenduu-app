@@ -2,6 +2,8 @@
 using Android.Gms.Gcm;
 using Android.App;
 using Android.Content;
+using Android.Util;
+using Humance.Push.AeroGear;
 
 namespace Humance.Push
 {
@@ -9,48 +11,35 @@ namespace Humance.Push
     [IntentFilter(new string[] { "com.google.android.c2dm.intent.RECEIVE" }, Categories = new string[] { "@PACKAGE_NAME@" })]
     public class GCMBroadcastReceiver : BroadcastReceiver
     {
-        public const int NOTIFICATION_ID = 1;
-        private static IMessageHandler DefaultHandler;
-        private static Boolean CheckDefaultHandler { get; set; }
-
         public const String ERROR = "org.jboss.aerogear.android.unifiedpush.ERROR";
         public const String MESSAGE = "org.jboss.aerogear.android.unifiedpush.MESSAGE";
         public const String DELETED = "org.jboss.aerogear.android.unifiedpush.DELETED";
-
-        public static IMessageHandler MessageHandler { get; set; }
 
         private readonly String TAG = typeof(GCMBroadcastReceiver).Name;
 
         public GCMBroadcastReceiver()
         {
-            CheckDefaultHandler = true;
+            Log.Info("ctor", Environment.StackTrace);
         }
 
         public override void OnReceive(Context context, Intent intent)
         {
-            //@todo checkdefaulthandler
-
             GoogleCloudMessaging gcm = GoogleCloudMessaging.GetInstance(context);
             String messageType = gcm.GetMessageType(intent);
             if (GoogleCloudMessaging.MessageTypeSendError.Equals(messageType))
             {
-                intent.PutExtra(ERROR, true);
+                PushReceiver.Instance.OnMessageError();
             }
             else if (GoogleCloudMessaging.MessageTypeDeleted.Equals(messageType))
             {
-                intent.PutExtra(DELETED, true);
+                var message = intent.Extras.GetString("alert");
+                PushReceiver.Instance.OnMessageDelete(message);
             }
             else
             {
-                intent.PutExtra(MESSAGE, true);
+                var message = intent.Extras.GetString("alert");
+                PushReceiver.Instance.OnMessageReceived(message);
             }
-
-            if (MessageHandler != null)
-            {
-                MessageHandler.OnMessage(context, intent.Extras);
-            }
-            //@TODO notify all messagehandler implementations, not just this one.
         }
     }
 }
-

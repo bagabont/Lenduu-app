@@ -10,12 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)GCMBroadcastReceiver.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IMessageHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGearAndroidConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGearClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AeroGear\IAeroGearConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGeariOSConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AeroGear\AeroGearWindowsConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AeroGear\PushMsgEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PushReceiver.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)AeroGear\" />

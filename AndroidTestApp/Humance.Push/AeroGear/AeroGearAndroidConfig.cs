@@ -2,6 +2,9 @@
 using Android.Gms.Gcm;
 using System;
 using System.Collections.Generic;
+using Android.Util;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Humance.Push.AeroGear
 {
@@ -10,6 +13,11 @@ namespace Humance.Push.AeroGear
     /// </summary>
     public class AeroGearAndroidConfig : IAeroGearConfig
     {
+        private const string VARIANT_ID = "eb95d9db-2ae2-4c9a-8bcd-b603660f432d";
+        private const string VARIANT_SECRET = "3123c516-6218-453a-aa80-eb1c63ef57c0";
+        private const string DEVICE_TYPE = "ANDROID";
+        private const string PLATFORM = "android";
+        private const string DEFAULT_ALIAS = "";
         private const string GCM_SENDER_ID = "754965245212";
         private const string TOKEN_KEY = "token_id";
 
@@ -31,39 +39,45 @@ namespace Humance.Push.AeroGear
 
         public AeroGearAndroidConfig(Context context)
         {
-            VariantId = "eb95d9db-2ae2-4c9a-8bcd-b603660f432d";
-            VariantSecret = "3123c516-6218-453a-aa80-eb1c63ef57c0";
-            DeviceType = "ANDROID";
-            Platform = "android";
+            // Set device parameters
+            VariantId = VARIANT_ID;
+            VariantSecret = VARIANT_SECRET;
+            DeviceType = DEVICE_TYPE;
+            Platform = PLATFORM;
             OsVersion = Android.OS.Build.VERSION.Release;
-            Alias = "XamarinAndroidTestApp";
-            DeviceToken = GetDeviceToken(context);
+            Alias = DEFAULT_ALIAS;
+            Categories = new List<string>();
+
+            // Obtain the device token in a background thread
+            ThreadPool.QueueUserWorkItem(o => GetDeviceToken(context));
         }
 
-        private string GetDeviceToken(Context context)
+        private void GetDeviceToken(Context context)
         {
-            // Try to load token from settings
+            // Load token from settings
             var settings = context.GetSharedPreferences("AerogearPushConfig", FileCreationMode.Private);
             var token = settings.GetString(TOKEN_KEY, String.Empty);
 
-            // If the token is empty, send a new token request to GCM
+            // If the token obtained from seetings is empty, send a new token request to GCM
             if (String.IsNullOrWhiteSpace(token))
             {
                 var gcm = GoogleCloudMessaging.GetInstance(context);
-                token = gcm.Register(GCM_SENDER_ID);
+                try {
+                    token = gcm.Register(GCM_SENDER_ID);
+                } catch(Exception e) {
+                    // TODO An exception might be rarely thrown here, if the
+                    // GCM service is not responding. Handle this case here.
+                }
 
-                // Store token to settings.
+                // Store the token in SharedPreferences
                 var editor = settings.Edit();
                 editor.PutString(TOKEN_KEY, token);
+
                 //@ todo in AeroGearGCMPushRegistrar:302 the appversion is also saved?
                 //@ todo Set expiration time
                 editor.Commit();
             }
-            return token;
-
-            //TODO - Please, check if actually you need to store
-            // the device token inside settings. With other platforms,
-            // this is not recommended.
+            DeviceToken = token;
 
             // check if app was updated; if so, it must clear registration id to
             // avoid a race condition if a GCM sends a message

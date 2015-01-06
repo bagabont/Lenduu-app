@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Android.Util;
+using Newtonsoft.Json;
 
 namespace Humance.Push.AeroGear
 {
@@ -32,14 +33,8 @@ namespace Humance.Push.AeroGear
             var requestStream = await request.GetRequestStreamAsync();
             using (var sw = new StreamWriter(requestStream))
             {
-                string json = "{" +
-                              "\"deviceToken\": \"" + _config.DeviceToken + "\", " +
-                              "\"deviceType\": \"" + _config.DeviceType + "\", " +
-                              "\"operatingSystem\": \"" + _config.Platform + "\", " +
-                              "\"osVersion\": \"" + _config.OsVersion + "\", " +
-                              "\"alias\": \"" + _config.Alias + "\", " +
-                              "\"categories\": [" + _config.Categories + "] " + //TODO - _config.Categories will return the class name, not a collection of categories!!!
-                              "}";
+                // Build the JSON object which carries the device's registration information
+                var json = JsonConvert.SerializeObject(_config);
 
                 await sw.WriteAsync(json);
                 await sw.FlushAsync();

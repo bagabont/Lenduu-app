@@ -8,16 +8,17 @@ using Android.OS;
 using System.Threading.Tasks;
 using Humance.Push;
 using Humance.Push.AeroGear;
+using Android.Util;
 
 namespace AndroidTestApp
 {
     [Activity(Label = "AndroidTestApp", MainLauncher = true, Icon = "@drawable/icon")]
-    public class MainActivity : Activity, IMessageHandler
+    public class MainActivity : Activity
     {
         Button button;
         int count = 1;
 
-        protected async override void OnCreate(Bundle bundle)
+        protected override async void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
@@ -28,40 +29,32 @@ namespace AndroidTestApp
             // and attach an event to it
             button = FindViewById<Button>(Resource.Id.myButton);
 
-            button.Click += (s, e) =>
-                button.Text = string.Format("{0} clicks!", count++);
+            // button.Click += (s, e) =>
+                // button.Text = string.Format("{0} clicks!", count++);
 
             await RegisterPushNotificationsAsync();
         }
 
         private async Task RegisterPushNotificationsAsync()
         {
-            GCMBroadcastReceiver.MessageHandler = this;
+            PushReceiver.Instance.MessageReceived += MessageReceived;
+          
             var config = new AeroGearAndroidConfig(Android.App.Application.Context);
             var aerogear = new AeroGearClient(config);
             try
             {
                 var aerogearServer = new Uri("https://pitajnas.rs:8443/ag-push/rest/registry/device");
                 await aerogear.RegisterAsync(aerogearServer);
-                Toast.MakeText(Android.App.Application.Context, "Woohoo! succeeded.", ToastLength.Short).Show();
             }
             catch (Exception ex)
             {
-                Toast.MakeText(Android.App.Application.Context, "You suck at C# coding." + ex.Message, ToastLength.Short).Show();
+                // TODO What happens in the case of no connectivity or server downtime?
             }
         }
 
-        public void OnMessage(Context context, Bundle message)
+        private void MessageReceived(object sender, PushMsgEventArgs e) 
         {
-            button.Text = message.GetString("alert");
-        }
-
-        public void OnDeleteMessage(Context context, Bundle message)
-        {
-        }
-
-        public void OnError()
-        {
+            button.Text = e.Message;
         }
     }
 }
